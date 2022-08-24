@@ -73,7 +73,9 @@ dependencies:
   google_fonts: ^2.1.0
   form_field_validator: ^1.1.0
   intl: ^0.17.0
-  sliding_up_panel: ^2.0.0+1
+  # sliding_up_panel: ^2.0.0+1
+  # cached_video_player: ^2.0.3
+  audioplayers: ^0.20.1
 
 
 

@@ -7,17 +7,21 @@ class MultiMediaOption extends StatelessWidget {
   MultiMediaOption({
     required this.icon,
     required this.title,
+    this.onTap,
     Key? key,
   }) : super(key: key);
 
   IconData icon;
   String title;
+  void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       child: Container(
+        width: 80.w,
+        height: 120.h,
         padding: EdgeInsets.all(3.r),
         decoration: BoxDecoration(
           boxShadow: [
@@ -45,6 +49,7 @@ class MultiMediaOption extends StatelessWidget {
               text: title,
               fontSize: 16.sp,
               color: CustomColors.backGroundColor,
+              maxLines: 2,
             ),
           ],
         ),
