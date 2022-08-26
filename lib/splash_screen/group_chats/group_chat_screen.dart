@@ -1,20 +1,23 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:top_bantz/models/UserModel.dart';
+import 'package:top_bantz/new_modules/chat_room/view/group_chat_screen.dart';
 
 import 'create_group/add_members.dart';
 import 'group_chat_room.dart';
 
-
 class GroupChatHomeScreen extends StatefulWidget {
-  const GroupChatHomeScreen({Key? key}) : super(key: key);
-
+  GroupChatHomeScreen({Key? key, required this.userModel}) : super(key: key);
+  UserModel userModel;
   @override
-  _GroupChatHomeScreenState createState() => _GroupChatHomeScreenState();
+  _GroupChatHomeScreenState createState() =>
+      _GroupChatHomeScreenState(userModel: userModel);
 }
 
 class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
+  _GroupChatHomeScreenState({required this.userModel});
+  UserModel userModel;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool isLoading = true;
@@ -63,10 +66,17 @@ class _GroupChatHomeScreenState extends State<GroupChatHomeScreen> {
               itemBuilder: (context, index) {
                 return ListTile(
                   onTap: () => Navigator.of(context).push(
+                    // MaterialPageRoute(
+                    //   builder: (_) => GroupChatRoom(
+                    //     groupName: groupList[index]['name'],
+                    //     groupChatId: groupList[index]['id'],
+                    //   ),
+                    // ),
                     MaterialPageRoute(
-                      builder: (_) => GroupChatRoom(
+                      builder: (_) => GroupChatScreen(
                         groupName: groupList[index]['name'],
                         groupChatId: groupList[index]['id'],
+                        userModel:userModel,
                       ),
                     ),
                   ),

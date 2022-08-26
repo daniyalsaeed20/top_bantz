@@ -1,9 +1,10 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:top_bantz/bottom_navigation/home_page.dart';
 import 'package:top_bantz/bottom_navigation/search_screen.dart';
+import 'package:top_bantz/models/UserModel.dart';
+import 'package:top_bantz/models/sharedPrefrences.dart';
 
 import 'package:uuid/uuid.dart';
 
@@ -23,6 +24,8 @@ class _CreateGroupState extends State<CreateGroup> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool isLoading = false;
+
+  late UserModel userModel;
 
   void createGroup() async {
     setState(() {
@@ -55,8 +58,14 @@ class _CreateGroupState extends State<CreateGroup> {
       "type": "notify",
     });
 
+    userModel = await MySharedPrefrences.getUserData();
+
     Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => ChatsMainScreen()), (route) => false);
+        MaterialPageRoute(
+            builder: (_) => ChatsMainScreen(
+                  userModel: userModel,
+                )),
+        (route) => false);
   }
 
   @override

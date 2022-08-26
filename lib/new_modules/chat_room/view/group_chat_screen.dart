@@ -1,20 +1,73 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:paginate_firestore/paginate_firestore.dart';
+import 'package:top_bantz/models/FirebaseHelper.dart';
+import 'package:top_bantz/models/UserModel.dart';
+import 'package:top_bantz/new_modules/audio_texts/test_ui.dart';
 import 'package:top_bantz/new_modules/chat_room/constants/custom_colors.dart';
 import 'package:top_bantz/new_modules/chat_room/controller/message_controller.dart';
+import 'package:top_bantz/new_modules/chat_room/controller/recording_controller.dart';
 import 'package:top_bantz/new_modules/chat_room/models/chat_message_model.dart';
 import 'package:top_bantz/new_modules/chat_room/view/widgets/audio_box.dart';
+import 'package:top_bantz/new_modules/chat_room/view/widgets/chat_room_recording_field.dart';
 import 'package:top_bantz/new_modules/chat_room/view/widgets/chat_room_text_field.dart';
 import 'package:top_bantz/new_modules/chat_room/view/widgets/custom_text.dart';
 import 'package:top_bantz/new_modules/chat_room/view/widgets/image_box.dart';
+import 'package:top_bantz/new_modules/chat_room/view/widgets/loader_box.dart';
 import 'package:top_bantz/new_modules/chat_room/view/widgets/multi_media_options.dart';
 import 'package:top_bantz/new_modules/chat_room/view/widgets/text_bubble.dart';
 import 'package:top_bantz/new_modules/chat_room/view/widgets/video_box.dart';
 
-class GroupChatScreen extends StatelessWidget {
-  const GroupChatScreen({Key? key}) : super(key: key);
+class GroupChatScreen extends StatefulWidget {
+  GroupChatScreen({
+    Key? key,
+    required this.groupName,
+    required this.groupChatId,
+    required this.userModel,
+  }) : super(key: key);
+
+  final String groupChatId, groupName;
+  UserModel userModel;
+
+  RecordingController recording = RecordingController();
+
+  @override
+  State<GroupChatScreen> createState() => _GroupChatScreenState(
+        recording: recording,
+        groupChatId: groupChatId,
+        userModel: userModel,
+      );
+}
+
+class _GroupChatScreenState extends State<GroupChatScreen> {
+  _GroupChatScreenState({
+    required this.recording,
+    required this.groupChatId,
+    required this.userModel,
+  });
+  UserModel userModel;
+  RecordingController recording;
+  String groupChatId;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    recording.init();
+  }
+
+  @override
+  void dispose() {
+    recording.dispose();
+    // TODO: implement dispose
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,81 +84,144 @@ class GroupChatScreen extends StatelessWidget {
           centerTitle: true,
           leading: Icon(Icons.menu),
         ),
-        body: Body(),
+        body: Body(
+          recording: recording,
+          groupChatId: groupChatId,
+          userModel: userModel,
+        ),
       ),
     );
   }
 }
 
 class Body extends StatelessWidget {
-  const Body({
+  Body({
     Key? key,
+    required this.recording,
+    required this.groupChatId,
+    required this.userModel,
   }) : super(key: key);
+
+  RecordingController recording;
+
+  UserModel userModel;
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String groupChatId;
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<MessageController>(
       init: MessageController(),
       builder: (messageController) {
-        return SizedBox(
-          height: Get.height,
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      for (int i = 0;
-                          i < messageController.messages.length;
-                          i++)
-                        ChatUiSelector(
-                          chatMessageModel: messageController.messages[i],
-                        )
-                    ],
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        return GetBuilder<RecordingController>(
+          init: RecordingController(),
+          builder: (recordingController) {
+            return SizedBox(
+              height: Get.height,
+              child: Column(
                 children: [
                   Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 5.h,
-                        horizontal: 5.w,
+                    child: PaginateFirestore(
+                      //item builder type is compulsory.
+                      itemBuilder: (context, documentSnapshots, index) {
+                        final data = documentSnapshots[index].data() as Map?;
+                        if (data!['message'] == 'null') {
+                          return LoaderBox(
+                            messageModel: ChatMessageModel(
+                              message: data!['message'],
+                              send_by: data['sendBy'],
+                              type: data['type'],
+                            ),
+                            userModel: userModel,
+                          );
+                        }
+                        return ChatUiSelector(
+                          userModel: userModel,
+                          chatMessageModel: ChatMessageModel(
+                            message: data!['message'],
+                            send_by: data['sendBy'],
+                            type: data['type'],
+                          ),
+                        );
+                      },
+                      // orderBy is compulsory to enable pagination
+                      query: _firestore
+                          .collection('groups')
+                          .doc(groupChatId)
+                          .collection('chats')
+                          .orderBy('time', descending: true),
+                      //Change types accordingly
+                      itemBuilderType: PaginateBuilderType.listView,
+                      // to fetch real-time data
+                      isLive: true,
+                      reverse: true,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 5.h,
+                            horizontal: 5.w,
+                          ),
+                          child: messageController.isRecorderActive
+                              ? ChatRoomRecordingField(
+                                  onCancelTap: () {
+                                    messageController.isRecorderActive = false;
+                                    messageController.update();
+                                    recording.toggleRecording();
+                                  },
+                                )
+                              : ChatRoomTextField(
+                                  title: 'Write a reply...',
+                                  controller:
+                                      messageController.sendMessageController,
+                                ),
+                        ),
                       ),
-                      child: ChatRoomTextField(
-                        title: 'Write a reply...',
-                        controller: messageController.sendMessageController,
+                      InkWell(
+                        onTap: () => openPanel(
+                          recording: recording,
+                          groupchatId: groupChatId,
+                        ),
+                        child: const Icon(
+                          Icons.more_vert,
+                          color: CustomColors.textWhiteColor,
+                        ),
                       ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () => openPanel(),
-                    child: const Icon(
-                      Icons.more_vert,
-                      color: CustomColors.textWhiteColor,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 5.w,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      messageController.chatTemp();
-                    },
-                    child: const Icon(
-                      Icons.send,
-                      color: CustomColors.themeColor,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 5.w,
+                      SizedBox(
+                        width: 5.w,
+                      ),
+                      InkWell(
+                        onTap: () async {
+                          if (messageController.isRecorderActive) {
+                            messageController.isRecorderActive = false;
+                            messageController.update();
+                            await recording.toggleRecording();
+                            var file = await recording.getAudioPath();
+                            recording.uploadAudioForGroup(file, groupChatId);
+                          } else {
+                            messageController.onSendMessage(id: groupChatId);
+                            // messageController.chatTemp();
+                          }
+                        },
+                        child: const Icon(
+                          Icons.send,
+                          color: CustomColors.themeColor,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 5.w,
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -113,30 +229,36 @@ class Body extends StatelessWidget {
 }
 
 class ChatUiSelector extends StatelessWidget {
-  ChatUiSelector({Key? key, required this.chatMessageModel}) : super(key: key);
+  ChatUiSelector(
+      {Key? key, required this.chatMessageModel, required this.userModel})
+      : super(key: key);
   ChatMessageModel chatMessageModel;
+  UserModel userModel;
 
   @override
   Widget build(BuildContext context) {
-    if (chatMessageModel.type == 'txt') {
-      return showMessage(messageModel: chatMessageModel);
+    if (chatMessageModel.type == 'text') {
+      return showMessage(
+        messageModel: chatMessageModel,
+        userModel: userModel,
+      );
     }
     if (chatMessageModel.type == 'vid') {
       return VideoBox(
         messageModel: chatMessageModel,
+        userModel: userModel,
       );
     }
     if (chatMessageModel.type == 'img') {
-      return InkWell(
-        onTap: () => viewImageDialog(url: chatMessageModel.message,context: context),
-        child: ImageBox(
-          messageModel: chatMessageModel,
-        ),
+      return ImageBox(
+        messageModel: chatMessageModel,
+        userModel: userModel,
       );
     }
-    if (chatMessageModel.type == 'aud') {
+    if (chatMessageModel.type == 'audio') {
       return AudioBox(
         messageModel: chatMessageModel,
+        userModel: userModel,
       );
     }
     return SizedBox();
@@ -144,54 +266,103 @@ class ChatUiSelector extends StatelessWidget {
 }
 
 class Panel extends StatelessWidget {
-  const Panel({Key? key}) : super(key: key);
-
+  Panel({
+    Key? key,
+    required this.recording,
+    required this.groupchatId,
+  }) : super(key: key);
+  RecordingController recording;
+  String groupchatId;
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        MultiMediaOption(
-          icon: Icons.mic,
-          title: 'Record Audio',
-        ),
-        MultiMediaOption(
-          icon: Icons.image,
-          title: 'Upload Image',
-          onTap: () {
-            multiMediaOptionsDialog(title: 'Upload Image');
-          },
-        ),
-        MultiMediaOption(
-          icon: Icons.video_camera_back_outlined,
-          title: 'Upload Video',
-          onTap: () {
-            multiMediaOptionsDialog(title: 'Upload Video');
-          },
-        ),
-      ],
-    );
+    return GetBuilder<MessageController>(
+        init: MessageController(),
+        builder: (messageController) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              GetBuilder<RecordingController>(builder: (recordingController) {
+                return InkWell(
+                  onTap: () async {
+                    messageController.isRecorderActive = true;
+                    messageController.update();
+                    Get.back();
+                    await recording.toggleRecording();
+                  },
+                  child: MultiMediaOption(
+                    icon: Icons.mic,
+                    title: 'Record Audio',
+                  ),
+                );
+              }),
+              MultiMediaOption(
+                icon: Icons.image,
+                title: 'Upload Image',
+                onTap: () {
+                  multiMediaOptionsDialog(
+                      title: 'Upload Image', groupchatId: groupchatId);
+                },
+              ),
+              MultiMediaOption(
+                icon: Icons.video_camera_back_outlined,
+                title: 'Upload Video',
+                onTap: () {
+                  multiMediaOptionsDialog(
+                      title: 'Upload Video', groupchatId: groupchatId);
+                },
+              ),
+            ],
+          );
+        });
   }
 }
 
-dynamic openPanel() {
-  multiMediaDialog();
+dynamic openPanel({
+  required RecordingController recording,
+  required String groupchatId,
+}) {
+  multiMediaDialog(recording: recording, groupchatId: groupchatId);
 }
 
 dynamic multiMediaOptionsDialog({
   required String title,
+  required String groupchatId,
 }) {
   return Get.defaultDialog(
     title: title,
     middleText: '',
     actions: [
-      MultiMediaOption(
-        icon: Icons.camera_alt_outlined,
-        title: 'From Camera',
+      InkWell(
+        onTap: () {
+          if (title == 'Upload Video') {
+            Get.back();
+            getVideo(ImageSource.camera, groupchatId);
+          }
+          if (title == 'Upload Image') {
+            Get.back();
+            getImage(ImageSource.camera, groupchatId);
+          }
+        },
+        child: MultiMediaOption(
+          icon: Icons.camera_alt_outlined,
+          title: 'From Camera',
+        ),
       ),
-      MultiMediaOption(
-        icon: Icons.image_outlined,
-        title: 'From Gallery',
+      InkWell(
+        onTap: () {
+          if (title == 'Upload Video') {
+            Get.back();
+            getVideo(ImageSource.gallery, groupchatId);
+          }
+          if (title == 'Upload Image') {
+            Get.back();
+            getImage(ImageSource.gallery, groupchatId);
+          }
+        },
+        child: MultiMediaOption(
+          icon: Icons.image_outlined,
+          title: 'From Gallery',
+        ),
       ),
     ],
     backgroundColor: CustomColors.themeColor.withOpacity(0.8),
@@ -204,11 +375,19 @@ dynamic multiMediaOptionsDialog({
   );
 }
 
-dynamic multiMediaDialog() {
+dynamic multiMediaDialog({
+  required RecordingController recording,
+  required String groupchatId,
+}) {
   return Get.defaultDialog(
     title: 'Upload Multimedia',
     middleText: '',
-    actions: [Panel()],
+    actions: [
+      Panel(
+        recording: recording,
+        groupchatId: groupchatId,
+      )
+    ],
     backgroundColor: CustomColors.themeColor.withOpacity(0.8),
     titleStyle: TextStyle(
       color: CustomColors.textWhiteColor,
@@ -219,26 +398,36 @@ dynamic multiMediaDialog() {
   );
 }
 
-dynamic viewImageDialog({required BuildContext context,required String url}) {
-  
+Future getVideo(
+  ImageSource source,
+  // isGroup,
+  groupChatId,
+) async {
+  ImagePicker _picker = ImagePicker();
+  File? videoFile;
 
-   showDialog(  
-    context: context,  
-    builder: (BuildContext context) {  
-      return AlertDialog(
-    // title: Text("Simple Alert"),
-    // content: Text("This is an alert message."),
-    actions: [
-      CachedNetworkImage(
-        imageUrl: url != "" ? url : "Loading",
-        fit: BoxFit.fitHeight,
-        placeholder: (context, url) =>
-            const Center(child: CircularProgressIndicator()),
-        errorWidget: (context, url, error) =>
-            url != "" ? const Icon(Icons.refresh) : const Icon(Icons.error),
-      ),
-    ],
-  );  
-    },  
-  );  
+  await _picker.pickVideo(source: source).then((xFile) {
+    if (xFile != null) {
+      videoFile = File(
+        xFile.path,
+      );
+
+      MessageController().uploadVideoForGroup(videoFile, groupChatId);
+    }
+  });
+}
+
+Future getImage(ImageSource value, groupChatId) async {
+  ImagePicker _picker = ImagePicker();
+  File? imageFile;
+
+  await _picker.pickImage(source: value).then((xFile) {
+    if (xFile != null) {
+      imageFile = File(
+        xFile.path,
+      );
+
+      MessageController().uploadImage(imageFile, groupChatId);
+    }
+  });
 }

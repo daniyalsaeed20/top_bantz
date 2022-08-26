@@ -34,9 +34,9 @@ class MySharedPrefrences {
 
       _userModel = UserModel(
         // uid: value.getInt(Constant.userIdKey),
-        uid: value.getString(userIdKey),
-        fullname: value.getString(userFullNamekey),
-        email: value.getString(userEmailkey),
+        uid: value.getString(userIdKey)!,
+        fullname: value.getString(userFullNamekey)!,
+        email: value.getString(userEmailkey)!,
       //  password: value.getString(Constant.userPasswordkey),
       );
     });

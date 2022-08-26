@@ -69,12 +69,12 @@ class _MyHomePageState extends State<MyHomePage> {
     return ScreenUtilInit(
       designSize: const Size(428, 926),
       builder: (context, _) {
-        return const GetMaterialApp(
+        return  GetMaterialApp(
           debugShowCheckedModeBanner: false,
           // home: const HomeMainScreen(),
           // home: LoginScreen(),
-          // home: const SplashScreen(),
-          home: GroupChatScreen(),
+          home: const SplashScreen(),
+          // home: GroupChatScreen(),
           // home: TestUi(),
           // home:  SamplePage(),
         );

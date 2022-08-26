@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:top_bantz/models/UserModel.dart';
 import 'package:top_bantz/new_modules/chat_room/constants/custom_colors.dart';
 import 'package:top_bantz/new_modules/chat_room/models/chat_message_model.dart';
 import 'package:top_bantz/new_modules/chat_room/view/widgets/custom_text.dart';
@@ -38,24 +39,29 @@ Widget textBubble({
   );
 }
 
-Widget showMessage({required ChatMessageModel messageModel}) {
+Widget showMessage({
+  required ChatMessageModel messageModel,
+  required UserModel userModel,
+}) {
   return Align(
-    alignment: messageModel.user_id == "2"
+    alignment: messageModel.send_by == userModel.fullname
         ? Alignment.centerRight
         : Alignment.centerLeft,
     child: Padding(
       padding: EdgeInsets.only(
         bottom: 16,
-        left: messageModel.user_id == "2" ? 48 : 16,
-        right: messageModel.user_id == "2" ? 16 : 48,
+        left: messageModel.send_by == userModel.fullname ? 48 : 16,
+        right: messageModel.send_by == userModel.fullname ? 16 : 48,
         top: 8,
       ),
       child: textBubble(
-        color: messageModel.user_id == "2"
+        color: messageModel.send_by == userModel.fullname
             ? CustomColors.themeColor
             : Colors.white,
         text: messageModel.message,
-        textColor: messageModel.user_id == "2" ? Colors.white : Colors.black,
+        textColor: messageModel.send_by == userModel.fullname
+            ? Colors.white
+            : Colors.black,
       ),
     ),
   );

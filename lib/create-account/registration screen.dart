@@ -467,7 +467,7 @@ controller: password,
     User? user = _auth.currentUser;
 
     // UserModel userModel = UserModel(uid: int.parse(user!.uid), email: user.email, fullName: _fullName.text, password: _password.text);
-    UserModel userModel = UserModel(uid: user!.uid, email: user.email, fullname: fullname.text, password: password.text,
+    UserModel userModel = UserModel(uid: user!.uid, email: user.email!, fullname: fullname.text, password: password.text,
     ContactNo: contactno.text,Dateofbirth: dateofbirth.text,
     );
 MySharedPrefrences.setUserData(userModel: userModel );

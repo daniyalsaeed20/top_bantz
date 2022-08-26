@@ -1,11 +1,11 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:top_bantz/models/UserModel.dart';
+import 'package:top_bantz/models/sharedPrefrences.dart';
 
 import '../../profile_screen/SearchPage.dart';
 import 'add_members.dart';
-
 
 class GroupInfo extends StatefulWidget {
   final String groupId, groupName;
@@ -19,6 +19,7 @@ class GroupInfo extends StatefulWidget {
 class _GroupInfoState extends State<GroupInfo> {
   List membersList = [];
   bool isLoading = true;
+  late UserModel userModel;
 
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FirebaseAuth _auth = FirebaseAuth.instance;
@@ -117,9 +118,9 @@ class _GroupInfoState extends State<GroupInfo> {
           .collection('groups')
           .doc(widget.groupId)
           .delete();
-
+      userModel = await MySharedPrefrences.getUserData();
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => ChatsMainScreen()),
+        MaterialPageRoute(builder: (_) => ChatsMainScreen(userModel: userModel,)),
         (route) => false,
       );
     }
