@@ -5,10 +5,10 @@ class ChatMessageModel {
     required this.type,
     required this.message,
     required this.send_by,
-    // required this.time,
+    required this.time,
   });
   String send_by;
   String type;
   String message;
-  // Timestamp time;
+  Timestamp time;
 }

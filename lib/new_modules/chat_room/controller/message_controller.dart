@@ -24,79 +24,79 @@ class MessageController extends GetxController {
 
   // List<MessageModel> messages = [];
 
-  List<ChatMessageModel> messages = [
-    ChatMessageModel(
-      send_by: '2',
-      message: "Hello",
-      type: "txt",
-    ),
-    ChatMessageModel(
-      send_by: '1',
-      message:
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-      type: "vid",
-    ),
-    ChatMessageModel(
-      send_by: '1',
-      message:
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-      type: "vid",
-    ),
-    ChatMessageModel(
-      send_by: '1',
-      message: "How are you?",
-      type: "txt",
-    ),
-    ChatMessageModel(
-      send_by: '2',
-      message: "https://images.unsplash.com/photo-1547721064-da6cfb341d50",
-      type: "img",
-    ),
-    ChatMessageModel(
-      send_by: '1',
-      message:
-          "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
-      type: "aud",
-    ),
-    ChatMessageModel(
-      send_by: '2',
-      message:
-          "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
-      type: "aud",
-    ),
-    ChatMessageModel(
-      send_by: '1',
-      message:
-          "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
-      type: "aud",
-    ),
-    ChatMessageModel(
-      send_by: '2',
-      message: "Never better.",
-      type: "txt",
-    ),
-    ChatMessageModel(
-      send_by: '2',
-      message: "How is life treating you these days?",
-      type: "txt",
-    ),
-  ];
+  // List<ChatMessageModel> messages = [
+  //   ChatMessageModel(
+  //     send_by: '2',
+  //     message: "Hello",
+  //     type: "txt",
+  //   ),
+  //   ChatMessageModel(
+  //     send_by: '1',
+  //     message:
+  //         'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
+  //     type: "vid",
+  //   ),
+  //   ChatMessageModel(
+  //     send_by: '1',
+  //     message:
+  //         'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
+  //     type: "vid",
+  //   ),
+  //   ChatMessageModel(
+  //     send_by: '1',
+  //     message: "How are you?",
+  //     type: "txt",
+  //   ),
+  //   ChatMessageModel(
+  //     send_by: '2',
+  //     message: "https://images.unsplash.com/photo-1547721064-da6cfb341d50",
+  //     type: "img",
+  //   ),
+  //   ChatMessageModel(
+  //     send_by: '1',
+  //     message:
+  //         "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+  //     type: "aud",
+  //   ),
+  //   ChatMessageModel(
+  //     send_by: '2',
+  //     message:
+  //         "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+  //     type: "aud",
+  //   ),
+  //   ChatMessageModel(
+  //     send_by: '1',
+  //     message:
+  //         "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+  //     type: "aud",
+  //   ),
+  //   ChatMessageModel(
+  //     send_by: '2',
+  //     message: "Never better.",
+  //     type: "txt",
+  //   ),
+  //   ChatMessageModel(
+  //     send_by: '2',
+  //     message: "How is life treating you these days?",
+  //     type: "txt",
+  //   ),
+  // ];
 
   /* -------------------------------------------------------------------------- */
   /*                                  Functions                                 */
   /* -------------------------------------------------------------------------- */
 
-  chatTemp() {
-    messages.add(
-      ChatMessageModel(
-          message: sendMessageController.text, type: "txt", send_by: '2'),
-    );
-    messages.add(
-      ChatMessageModel(message: "What do you mean?", type: "txt", send_by: '1'),
-    );
-    update();
-    sendMessageController.text = "";
-  }
+  // chatTemp() {
+  //   messages.add(
+  //     ChatMessageModel(
+  //         message: sendMessageController.text, type: "txt", send_by: '2'),
+  //   );
+  //   messages.add(
+  //     ChatMessageModel(message: "What do you mean?", type: "txt", send_by: '1'),
+  //   );
+  //   update();
+  //   sendMessageController.text = "";
+  // }
 
   getUserData() async {
     var snap = await FirebaseFirestore.instance
@@ -126,7 +126,6 @@ class MessageController extends GetxController {
             .doc(id)
             .collection('chats')
             .add(chatData);
-        update();
       }
     } catch (e) {
       print(e);
@@ -136,7 +135,6 @@ class MessageController extends GetxController {
   Future uploadVideoForGroup(videoFile, groupChatId) async {
     String fileName = Uuid().v1();
     User? user = FirebaseAuth.instance.currentUser;
-    
 
     String video = "vid";
     int status = 1;

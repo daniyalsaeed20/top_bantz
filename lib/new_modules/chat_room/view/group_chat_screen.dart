@@ -24,6 +24,7 @@ import 'package:top_bantz/new_modules/chat_room/view/widgets/loader_box.dart';
 import 'package:top_bantz/new_modules/chat_room/view/widgets/multi_media_options.dart';
 import 'package:top_bantz/new_modules/chat_room/view/widgets/text_bubble.dart';
 import 'package:top_bantz/new_modules/chat_room/view/widgets/video_box.dart';
+import 'package:top_bantz/splash_screen/group_chats/group_info.dart';
 
 class GroupChatScreen extends StatefulWidget {
   GroupChatScreen({
@@ -40,10 +41,10 @@ class GroupChatScreen extends StatefulWidget {
 
   @override
   State<GroupChatScreen> createState() => _GroupChatScreenState(
-        recording: recording,
-        groupChatId: groupChatId,
-        userModel: userModel,
-      );
+      recording: recording,
+      groupChatId: groupChatId,
+      userModel: userModel,
+      groupName: groupName);
 }
 
 class _GroupChatScreenState extends State<GroupChatScreen> {
@@ -51,10 +52,12 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     required this.recording,
     required this.groupChatId,
     required this.userModel,
+    required this.groupName,
   });
   UserModel userModel;
   RecordingController recording;
   String groupChatId;
+  String groupName;
   @override
   void initState() {
     // TODO: implement initState
@@ -73,16 +76,26 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: CustomColors.foreGroundColor,
+        backgroundColor: CustomColors.blackColor,
         appBar: AppBar(
           elevation: 0,
           backgroundColor: CustomColors.transparentColor,
           title: CustomText(
-            text: 'Chat Room',
+            text: groupName,
             fontSize: 18.sp,
+            color: CustomColors.textWhiteColor,
           ),
           centerTitle: true,
-          leading: Icon(Icons.menu),
+          leading: InkWell(
+              onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => GroupInfo(
+                        groupName: groupName,
+                        groupId: groupChatId,
+                      ),
+                    ),
+                  ),
+              child: const Icon(Icons.menu)),
         ),
         body: Body(
           recording: recording,
@@ -129,9 +142,10 @@ class Body extends StatelessWidget {
                         if (data!['message'] == 'null') {
                           return LoaderBox(
                             messageModel: ChatMessageModel(
-                              message: data!['message'],
+                              message: data['message'],
                               send_by: data['sendBy'],
                               type: data['type'],
+                              time: data['time'],
                             ),
                             userModel: userModel,
                           );
@@ -139,9 +153,9 @@ class Body extends StatelessWidget {
                         return ChatUiSelector(
                           userModel: userModel,
                           chatMessageModel: ChatMessageModel(
-                            message: data!['message'],
+                            message: data['message'],
                             send_by: data['sendBy'],
-                            type: data['type'],
+                            type: data['type'],time: data['time'],
                           ),
                         );
                       },
