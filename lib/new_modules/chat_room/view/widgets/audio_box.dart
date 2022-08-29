@@ -65,7 +65,7 @@ class _AudioBoxState extends State<AudioBox> {
   Widget build(BuildContext context) {
     final Timestamp timestamp = widget.messageModel.time as Timestamp;
     final DateTime dateTime = timestamp.toDate();
-    final dateString = DateFormat('M/d, HH:mm').format(dateTime);
+    final dateString = DateFormat('MMM d, h:mma').format(dateTime);
     return Column(
       crossAxisAlignment: widget.messageModel.send_by == userModel.fullname
           ? CrossAxisAlignment.end
@@ -111,25 +111,71 @@ class _AudioBoxState extends State<AudioBox> {
                     offset: const Offset(0, 3),
                   )
                 ],
-                border: Border.all(
-                  width: 2,
-                  color: widget.messageModel.send_by == userModel.fullname
-                      ? CustomColors.backGroundColor
-                      : CustomColors.themeColor,
+                // border: Border.all(
+                //   width: 2,
+                //   color: widget.messageModel.send_by == userModel.fullname
+                //       ? CustomColors.backGroundColor
+                //       : CustomColors.blackColor.withOpacity(0.5),
+                // ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8.r),
+                  topRight: Radius.circular(8.r),
+                  bottomLeft: widget.messageModel.send_by == userModel.fullname
+                      ? Radius.circular(8.r)
+                      : Radius.circular(0.r),
+                  bottomRight: widget.messageModel.send_by == userModel.fullname
+                      ? Radius.circular(0.r)
+                      : Radius.circular(8.r),
                 ),
-                borderRadius: BorderRadius.circular(4.r),
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 5.w),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(
-                      Icons.multitrack_audio,
-                      color: widget.messageModel.send_by == userModel.fullname
-                          ? CustomColors.backGroundColor
-                          : CustomColors.themeColor,
+                    SizedBox(
+                      width: 5.w,
                     ),
+                    CircleAvatar(
+                      backgroundColor:
+                          widget.messageModel.send_by == userModel.fullname
+                              ? CustomColors.backGroundColor.withOpacity(0.2)
+                              : CustomColors.blackColor.withOpacity(0.2),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (url != 'null')
+                            InkWell(
+                              onTap: () async {
+                                if (isPlaying) {
+                                  await audioPlayer.pause();
+                                  setState(() {
+                                    playIcon = Icons.play_arrow;
+                                  });
+                                } else {
+                                  await audioPlayer.play(url);
+                                  setState(() {
+                                    playIcon = Icons.pause;
+                                  });
+                                }
+                              },
+                              child: Icon(
+                                playIcon,
+                                color: widget.messageModel.send_by ==
+                                        userModel.fullname
+                                    ? CustomColors.backGroundColor
+                                    : CustomColors.blackColor.withOpacity(0.5),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    // Icon(
+                    //   Icons.multitrack_audio,
+                    //   color: widget.messageModel.send_by == userModel.fullname
+                    //       ? CustomColors.backGroundColor
+                    //       : CustomColors.blackColor.withOpacity(0.5),
+                    // ),
                     Row(
                       children: [
                         SizedBox(
@@ -141,7 +187,7 @@ class _AudioBoxState extends State<AudioBox> {
                           color:
                               widget.messageModel.send_by == userModel.fullname
                                   ? CustomColors.backGroundColor
-                                  : CustomColors.themeColor,
+                                  : CustomColors.blackColor.withOpacity(0.5),
                         ),
                         if (isAudioLoading)
                           Padding(
@@ -154,7 +200,7 @@ class _AudioBoxState extends State<AudioBox> {
                                 color: widget.messageModel.send_by ==
                                         userModel.fullname
                                     ? CustomColors.backGroundColor
-                                    : CustomColors.themeColor,
+                                    : CustomColors.blackColor.withOpacity(0.5),
                               ),
                             ),
                           ),
@@ -174,96 +220,83 @@ class _AudioBoxState extends State<AudioBox> {
                                 color: widget.messageModel.send_by ==
                                         userModel.fullname
                                     ? CustomColors.backGroundColor
-                                    : CustomColors.themeColor,
+                                    : CustomColors.blackColor.withOpacity(0.5),
                               ),
                             ),
                           ),
-                        if (url != 'null')
-                          InkWell(
-                            onTap: () async {
-                              if (isPlaying) {
-                                await audioPlayer.pause();
-                                setState(() {
-                                  playIcon = Icons.play_arrow;
-                                });
-                              } else {
-                                await audioPlayer.play(url);
-                                setState(() {
-                                  playIcon = Icons.pause;
-                                });
-                              }
-                            },
-                            child: Icon(
-                              playIcon,
-                              color: widget.messageModel.send_by ==
-                                      userModel.fullname
-                                  ? CustomColors.backGroundColor
-                                  : CustomColors.themeColor,
-                            ),
-                          ),
-                        if (isPlaying)
-                          InkWell(
-                            onTap: () async {
-                              await audioPlayer.stop();
-                              setState(() {
-                                isPlaying = false;
-                                position = Duration.zero;
-                                playIcon = Icons.play_arrow;
-                              });
-                            },
-                            child: const Icon(
-                              Icons.stop,
-                              color: Colors.red,
-                            ),
-                          ),
+
+                        // InkWell(
+                        //   onTap: () async {
+                        //     await audioPlayer.stop();
+                        //     setState(() {
+                        //       isPlaying = false;
+                        //       position = Duration.zero;
+                        //       playIcon = Icons.play_arrow;
+                        //     });
+                        //   },
+                        //   child: const Icon(
+                        //     Icons.stop,
+                        //     color: Colors.red,
+                        //   ),
+                        // ),
                       ],
                     ),
-                    InkWell(
-                      onTap: () async {
-                        setState(() {
-                          if (playbackRate == 1.0) {
-                            playbackRate = 1.5;
-                          } else if (playbackRate == 1.5) {
-                            playbackRate = 2.0;
-                          } else if (playbackRate == 2.0) {
-                            playbackRate = 3.0;
-                          } else if (playbackRate == 3.0) {
-                            playbackRate = 0.5;
-                          } else if (playbackRate == 0.5) {
-                            playbackRate = 1.0;
-                          }
-                        });
-                        await audioPlayer.setPlaybackRate(playbackRate);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 2.h,
-                          horizontal: 5.w,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              widget.messageModel.send_by != userModel.fullname
-                                  ? CustomColors.backGroundColor
-                                  : CustomColors.themeColor,
-                          border: Border.all(
-                            width: 2,
+                    if (!isPlaying)
+                      Icon(
+                        Icons.multitrack_audio_rounded,
+                        color: widget.messageModel.send_by == userModel.fullname
+                            ? CustomColors.backGroundColor
+                            : CustomColors.blackColor.withOpacity(0.5),
+                        size: 45.r,
+                      ),
+                    if (isPlaying)
+                      InkWell(
+                        onTap: () async {
+                          setState(() {
+                            if (playbackRate == 1.0) {
+                              playbackRate = 1.5;
+                            } else if (playbackRate == 1.5) {
+                              playbackRate = 2.0;
+                            } else if (playbackRate == 2.0) {
+                              playbackRate = 3.0;
+                            } else if (playbackRate == 3.0) {
+                              playbackRate = 0.5;
+                            } else if (playbackRate == 0.5) {
+                              playbackRate = 1.0;
+                            }
+                          });
+                          await audioPlayer.setPlaybackRate(playbackRate);
+                        },
+                        child: Container(
+                          width: 50.w,
+                          padding: EdgeInsets.symmetric(
+                            vertical: 2.h,
+                            horizontal: 5.w,
+                          ),
+                          decoration: BoxDecoration(
+                            color: widget.messageModel.send_by ==
+                                    userModel.fullname
+                                ? CustomColors.backGroundColor.withOpacity(0.2)
+                                : CustomColors.blackColor.withOpacity(0.2),
+                            // border: Border.all(
+                            //   width: 2,
+                            //   color: widget.messageModel.send_by ==
+                            //           userModel.fullname
+                            //       ? CustomColors.backGroundColor
+                            //       : CustomColors.blackColor.withOpacity(0.5),
+                            // ),
+                            borderRadius: BorderRadius.circular(45.r),
+                          ),
+                          child: CustomText(
+                            text: playbackRate.toStringAsFixed(1) + 'x',
+                            fontSize: 16.sp,
                             color: widget.messageModel.send_by ==
                                     userModel.fullname
                                 ? CustomColors.backGroundColor
-                                : CustomColors.themeColor,
+                                : CustomColors.blackColor.withOpacity(0.5),
                           ),
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: CustomText(
-                          text: playbackRate.toStringAsFixed(1),
-                          fontSize: 16.sp,
-                          color:
-                              widget.messageModel.send_by == userModel.fullname
-                                  ? CustomColors.backGroundColor
-                                  : CustomColors.themeColor,
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),

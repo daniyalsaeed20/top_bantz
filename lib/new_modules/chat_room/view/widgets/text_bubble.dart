@@ -37,8 +37,15 @@ Widget textBubble(
               offset: const Offset(0, 3),
             )
           ],
-          borderRadius: BorderRadius.circular(
-            4.r,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(8.r),
+            topRight: Radius.circular(8.r),
+            bottomLeft: messageModel.send_by == userModel.fullname
+                ? Radius.circular(8.r)
+                : Radius.circular(0.r),
+            bottomRight: messageModel.send_by == userModel.fullname
+                ? Radius.circular(0.r)
+                : Radius.circular(8.r),
           ),
           color: color,
         ),
@@ -69,7 +76,7 @@ Widget showMessage({
 }) {
   final Timestamp timestamp = messageModel.time as Timestamp;
   final DateTime dateTime = timestamp.toDate();
-  final dateString = DateFormat('M/d, HH:mm').format(dateTime);
+  final dateString = DateFormat('MMM d, h:mma').format(dateTime);
   return Align(
     alignment: messageModel.send_by == userModel.fullname
         ? Alignment.centerRight

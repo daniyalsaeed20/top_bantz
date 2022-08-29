@@ -44,7 +44,7 @@ class LoaderBox extends StatelessWidget {
                 width: 2,
                 color: CustomColors.themeColor,
               ),
-              borderRadius: BorderRadius.circular(4.r),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Center(child: CircularProgressIndicator())),
       ),

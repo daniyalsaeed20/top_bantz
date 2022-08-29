@@ -19,7 +19,7 @@ class ImageBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final Timestamp timestamp = messageModel.time as Timestamp;
     final DateTime dateTime = timestamp.toDate();
-    final dateString = DateFormat('M/d, HH:mm').format(dateTime);
+    final dateString = DateFormat('MMM d, h:mma').format(dateTime);
     return Column(
       crossAxisAlignment: messageModel.send_by == userModel.fullname
           ? CrossAxisAlignment.end
@@ -69,9 +69,18 @@ class ImageBox extends StatelessWidget {
                   ],
                   border: Border.all(
                     width: 2,
-                    color: CustomColors.themeColor,
+                    color: CustomColors.textMediumColor,
                   ),
-                  borderRadius: BorderRadius.circular(4.r),
+                  borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8.r),
+                  topRight: Radius.circular(8.r),
+                  bottomLeft: messageModel.send_by == userModel.fullname
+                      ? Radius.circular(8.r)
+                      : Radius.circular(0.r),
+                  bottomRight: messageModel.send_by == userModel.fullname
+                      ? Radius.circular(0.r)
+                      : Radius.circular(8.r),
+                ),
                 ),
                 child: CachedNetworkImage(
                   imageUrl: messageModel.message.toString() != ""

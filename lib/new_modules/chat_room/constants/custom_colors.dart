@@ -30,5 +30,5 @@ class CustomColors {
   /* -------------------------------------------------------------------------- */
   static const Color transparentColor = Colors.transparent;
   static const Color blackColor = Colors.black;
-  static const Color themeColor = Color(0xFF1d8cd1);
+  static const Color themeColor = Color(0xFF254979);
 }

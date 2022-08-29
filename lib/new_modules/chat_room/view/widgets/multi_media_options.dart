@@ -36,7 +36,7 @@ class MultiMediaOption extends StatelessWidget {
             width: 2,
             color: CustomColors.backGroundColor,
           ),
-          borderRadius: BorderRadius.circular(4.r),
+          borderRadius: BorderRadius.circular(8.r),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

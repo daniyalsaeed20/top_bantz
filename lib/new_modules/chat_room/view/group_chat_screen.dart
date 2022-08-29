@@ -139,7 +139,8 @@ class Body extends StatelessWidget {
                       //item builder type is compulsory.
                       itemBuilder: (context, documentSnapshots, index) {
                         final data = documentSnapshots[index].data() as Map?;
-                        if (data!['message'] == 'null') {
+                        if (data!['message'] == 'null' ||
+                            data['time'] == 'null') {
                           return LoaderBox(
                             messageModel: ChatMessageModel(
                               message: data['message'],
@@ -155,7 +156,8 @@ class Body extends StatelessWidget {
                           chatMessageModel: ChatMessageModel(
                             message: data['message'],
                             send_by: data['sendBy'],
-                            type: data['type'],time: data['time'],
+                            type: data['type'],
+                            time: data['time'] ?? Timestamp(0, 0),
                           ),
                         );
                       },
@@ -190,22 +192,24 @@ class Body extends StatelessWidget {
                                   },
                                 )
                               : ChatRoomTextField(
+                                  groupChatId: groupChatId,
+                                  recording: recording,
                                   title: 'Write a reply...',
                                   controller:
                                       messageController.sendMessageController,
                                 ),
                         ),
                       ),
-                      InkWell(
-                        onTap: () => openPanel(
-                          recording: recording,
-                          groupchatId: groupChatId,
-                        ),
-                        child: const Icon(
-                          Icons.more_vert,
-                          color: CustomColors.textWhiteColor,
-                        ),
-                      ),
+                      // InkWell(
+                      //   onTap: () => openPanel(
+                      //     recording: recording,
+                      //     groupchatId: groupChatId,
+                      //   ),
+                      //   child: const Icon(
+                      //     Icons.more_vert,
+                      //     color: CustomColors.textWhiteColor,
+                      //   ),
+                      // ),
                       SizedBox(
                         width: 5.w,
                       ),
@@ -379,13 +383,13 @@ dynamic multiMediaOptionsDialog({
         ),
       ),
     ],
-    backgroundColor: CustomColors.themeColor.withOpacity(0.8),
+    backgroundColor: CustomColors.textMediumColor.withOpacity(0.8),
     titleStyle: TextStyle(
       color: CustomColors.textWhiteColor,
       fontSize: 20.sp,
       fontWeight: FontWeight.w400,
     ),
-    radius: 4.r,
+    radius: 8.r,
   );
 }
 
@@ -402,13 +406,13 @@ dynamic multiMediaDialog({
         groupchatId: groupchatId,
       )
     ],
-    backgroundColor: CustomColors.themeColor.withOpacity(0.8),
+    backgroundColor: CustomColors.textMediumColor.withOpacity(0.8),
     titleStyle: TextStyle(
       color: CustomColors.textWhiteColor,
       fontSize: 20.sp,
       fontWeight: FontWeight.w400,
     ),
-    radius: 4.r,
+    radius: 8.r,
   );
 }
 
