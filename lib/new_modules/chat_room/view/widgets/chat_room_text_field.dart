@@ -12,11 +12,15 @@ class ChatRoomTextField extends StatelessWidget {
     required this.controller,
     required this.recording,
     required this.groupChatId,
+    required this.cameraFunction,
+    required this.micFunction,
   }) : super(key: key);
   final String title;
   final TextEditingController controller;
   final RecordingController recording;
   final String groupChatId;
+  void Function()? cameraFunction;
+  void Function()? micFunction;
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +35,26 @@ class ChatRoomTextField extends StatelessWidget {
       ),
       cursorColor: CustomColors.textLightColor,
       decoration: InputDecoration(
-        suffixIcon: InkWell(
-          onTap: () => openPanel(
-            recording: recording,
-            groupchatId: groupChatId,
-          ),
-          child: Icon(
-            Icons.more_vert,
-            color: CustomColors.textLightColor,
-            size: 45.r,
-          ),
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            InkWell(
+              onTap: cameraFunction,
+              child: Icon(
+                Icons.camera_alt,
+                color: CustomColors.textLightColor,
+                size: 40.r,
+              ),
+            ),
+            InkWell(
+              onTap: micFunction,
+              child: Icon(
+                Icons.mic,
+                color: CustomColors.textLightColor,
+                size: 40.r,
+              ),
+            ),
+          ],
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),

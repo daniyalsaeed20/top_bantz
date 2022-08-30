@@ -17,7 +17,7 @@ class ChatRoomRecordingField extends StatelessWidget {
     return Container(
       height: 70.h,
       decoration: BoxDecoration(
-        color: CustomColors.backGroundColor,
+        color: const Color(0xFFEDEDED).withOpacity(0.2),
         boxShadow: [
           BoxShadow(
             color: CustomColors.blackColor.withOpacity(0.5),
@@ -115,6 +115,7 @@ class _RecordTimerState extends State<RecordTimer> {
     final minutes = twoDigits(duration.inMinutes.remainder(60));
     final seconds = twoDigits(duration.inSeconds.remainder(60));
     return CustomText(
+      color: CustomColors.textLightColor,
       text: '$minutes : $seconds',
       fontSize: 18.sp,
     );

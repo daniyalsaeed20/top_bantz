@@ -197,6 +197,17 @@ class Body extends StatelessWidget {
                                   title: 'Write a reply...',
                                   controller:
                                       messageController.sendMessageController,
+                                  cameraFunction: () {
+                                    openPanel(
+                                      recording: recording,
+                                      groupchatId: groupChatId,
+                                    );
+                                  },
+                                  micFunction: () async {
+                                    messageController.isRecorderActive = true;
+                                    messageController.update();
+                                    await recording.toggleRecording();
+                                  },
                                 ),
                         ),
                       ),
@@ -299,20 +310,20 @@ class Panel extends StatelessWidget {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              GetBuilder<RecordingController>(builder: (recordingController) {
-                return InkWell(
-                  onTap: () async {
-                    messageController.isRecorderActive = true;
-                    messageController.update();
-                    Get.back();
-                    await recording.toggleRecording();
-                  },
-                  child: MultiMediaOption(
-                    icon: Icons.mic,
-                    title: 'Record Audio',
-                  ),
-                );
-              }),
+              // GetBuilder<RecordingController>(builder: (recordingController) {
+              //   return InkWell(
+              //     onTap: () async {
+              //       messageController.isRecorderActive = true;
+              //       messageController.update();
+              //       Get.back();
+              //       await recording.toggleRecording();
+              //     },
+              //     child: MultiMediaOption(
+              //       icon: Icons.mic,
+              //       title: 'Record Audio',
+              //     ),
+              //   );
+              // }),
               MultiMediaOption(
                 icon: Icons.image,
                 title: 'Upload Image',
