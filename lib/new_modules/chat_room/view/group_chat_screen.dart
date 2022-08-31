@@ -146,7 +146,7 @@ class Body extends StatelessWidget {
                               message: data['message'],
                               send_by: data['sendBy'],
                               type: data['type'],
-                              time: data['time'],
+                              time: data['time'] ?? Timestamp(0, 0),
                             ),
                             userModel: userModel,
                           );
